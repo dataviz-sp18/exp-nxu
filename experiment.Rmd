@@ -17,10 +17,10 @@ theme_set(theme_minimal())
 ```
 
 ## Overview
-In this work, we try to utilize experiment to test the application of the hierarchy of elementary perceptual, put together by William S. Cleveland and Rober McGill, on the visualization of time-series data. In the hierarchy, graphs with position along common scales enable the most accurate estimates. We extend this idea arguing that for temporal data, which often includes multiple simulateneous time series, the context of the position matters in terms of how accurate and fast readers can extract the information.
+In this work, we try to utilize experiment to test the application of the hierarchy of elementary perceptual, put together by William S. Cleveland and Rober McGill, on the visualization of time-series data. In the hierarchy, graphs with position along common scales enable the most accurate estimates. We extend this idea arguing that for temporal data, which often includes multiple simulateneous time series, the context of the position matters in terms of how accurate and fast readers can extract the information on local comparisons.
 
 ## Question and Hypothesis
-We want to examine and test the principles of visualization and run task regarding a graphical perception experiment. In this experiment, we aim to answer the question: When data is structured to have multiple groups, is separated line graph (small multiple lines) more efficient in conveying accurate information on within group differences than simple line plot? Our basic assumption is that the number of time series line in a graph has strong effect on the perception performance, thus to many lines in a simple line plot would be distracting. We develop the following hypotheses:
+We want to examine and test the principles of visualization and run task regarding a graphical perception experiment. In this experiment, we aim to answer the question: When data is structured to have multiple groups, is separated line graph (small multiple lines) more efficient in conveying accurate information on within group differences than simple line plot? Our basic assumption is that the number of time series line in a graph has strong effect on the perception performance, thus too many lines in a simple line plot would be distracting. We develop the following hypotheses:
 
 > $H_1$: A separated line graph enables more accurate estimate for within group differences than a simple line graph.
 
@@ -53,7 +53,7 @@ percentage <- 57.4563863359794 #true answer to our question, shown in Appendix
 
 In total, we received `r tot_response` responses from Amazon Turk in about 72 hours. Among these responses, `r unfinished_res` responses are not finished before we close the survey, and `r failed_res` responses failed our screening test. Here we will do our descriptive analyses on our finished responses that passed our screening test, which include `r nrow(response)` observations. Among these observations, `r linesgroupsize` are randomly assigned to answer the question for lines graph, and `r smlsgroupsize` are assigned to small multiple lines group.
 
-We report the survey answers from these two groups in "Fig: Density of Survey Answers". One can tell that in both groups, most people have an answer value close to the true value. However, the "small multiple lines" group seems to have higher accuracy by this preliminary result, which shows our 1st hypothesis is right.
+We report the survey answers from these two groups in "Fig: Density of Survey Answers". One can tell that in both groups, most people have an answer value close to the true value. However, the "small multiple lines" group seems to have higher chance to reach the true value according to this preliminary result, which could mean our 1st hypothesis is right.
 
 ```{r descriptive analysis 1}
 response %>% 
@@ -78,25 +78,35 @@ response_long %>%
     theme(panel.grid.minor = element_blank())
 ```
 
+Then let's take a look at the answering speed of participants. It seems that "line graph" has advantage in this scenario, which has more subjects completing the question in less time than average. And in "small multiple lines", there are more subjects taking more than 250 seconds to finish the survey. This preliminary result shows that our 2nd hypothesis might be wrong. In next section, we will use methods that are more reliable to test these two hypotheses.
 
 ```{r descriptive analysis 2}
+avg_timespent <- mean(response_long$timespent)
 response_long %>%
   ggplot(., aes(x= timespent, color=Graph_Type)) +
     geom_line(stat="density") +
+    geom_vline(xintercept = avg_timespent) +
+    scale_x_continuous(breaks = sort(c(seq(0, 750, length.out = 4), round(avg_timespent,1)))) +
     theme_minimal() +
-    labs(title = "Density of Survey Answers",
-         subtitle = paste0("True Value: ", as.character(percentage))) +
+    labs(title = "Density of Answering Speed",
+         subtitle = paste0("Average: ", as.character(avg_timespent))) +
     theme(panel.grid.minor = element_blank())
 ```
-## Analysis and Results
 
+## Analysis and Results
+### Accuracy
+
+### Speed
 
 ## Conclusion
+For this experiment, we hypothesized that with multiple time series, all series in one simple line plot would increase the difficulty for subjects to extract the information regarding local comparison, more specifically, within group differences for the data structured with groups. By difficulty, we mainly focused on: (1) the difficulty to extract accurate information; and (2) difficulty to extract information in a short time. Hence our experiment aims to look at the accuracy and answering speed for two randomized groups, exposing to line graph and "small multiple lines". 
+
 
 
 ## Appendix
-```{r sourcedata, include=FALSE}
-# We got our source data for graphs from IPUMS.
+```{r sourcedata, echo=T, eval=F}
+# This is our data operations for constructing the survey.
+# We got our source data from IPUMS.
 data = fread("/Users/apple/Dropbox/18spring/dataviz/usa_00002.csv", 
              na.strings=c("0000000", "0000001", "9999999"))
 dat = data[, .(avginc = mean(INCTOT, na.rm=TRUE)), by=.(YEAR, SEX, RACE)]
