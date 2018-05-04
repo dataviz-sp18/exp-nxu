@@ -46,10 +46,16 @@ tot_response <- nrow(dplyr::filter(survey, !grepl("Preview", Status) & !grepl("S
 unfinished_res <- nrow(dplyr::filter(survey, grepl("FALSE", Finished)))
 failed_res <- nrow(dplyr::filter(survey, !grepl("Black, Man", Q2)))
 response <- dplyr::filter(survey, !grepl("Preview", Status) & !grepl("Spam", Status) & grepl("TRUE", Finished) & grepl("Black, Man", Q2) & !grepl("Not Black, Man", Q2))
+percentage <- 57.4563863359794 # answer to our question, shown in Appendix
 ```
 
 In total, we received `r tot_response` responses from Amazon Turk in about 72 hours. Among these responses, `r unfinished_res` responses are not finished before we close the survey, and `r failed_res` responses failed our screening test. Here we will do our descriptive analyses on our finished responses that passed our screening test, which include `r nrow(response)` observations.
 
+```{r descriptive analysis}
+ggplot(response) +
+  geom_density(aes(x = Q4_1)) +
+  geom_density(aes(x = Q6_1))
+```
 
 ## Analysis and Results
 
@@ -57,3 +63,44 @@ In total, we received `r tot_response` responses from Amazon Turk in about 72 ho
 ## Conclusion
 
 
+## Appendix
+```{r sourcedata, include=FALSE}
+# We got our source data for graphs from IPUMS.
+data = fread("/Users/apple/Dropbox/18spring/dataviz/usa_00002.csv", 
+             na.strings=c("0000000", "0000001", "9999999"))
+dat = data[, .(avginc = mean(INCTOT, na.rm=TRUE)), by=.(YEAR, SEX, RACE)]
+
+rm(data)
+
+dat = dat[, gender := ifelse(SEX==1, "Man", "Woman")]
+dat = dat[, race := ifelse(RACE==1, "black", "not black")]
+dat = dat[YEAR!=1970, .(inc = mean(avginc, na.rm=TRUE)), by=.(YEAR, gender, race)]
+
+ggplot(data=as.data.frame(dat), aes(x=YEAR, y=inc)) +
+  geom_point() + 
+  geom_line(aes(color = race, linetype=gender)) +
+  scale_x_continuous(breaks = seq(2007, 2016, 1)) +
+  scale_y_continuous(limits = c(0,60000), breaks = seq(0, 60000, 10000)) +
+  theme_minimal() +
+  labs(title = "Income Growth by gender and race",
+       x = "Year",
+       y = "Income",
+       caption = "Source: IPUMS") +
+  theme(panel.grid.minor = element_blank(), text = element_text(size=18))
+
+ggplot(data=as.data.frame(dat), aes(x=YEAR, y=inc)) +
+  geom_point() + 
+  geom_line(aes(color = race, linetype=gender)) +
+  facet_wrap(~ race) +
+  scale_x_continuous(breaks = seq(2007, 2016, 1)) +
+  scale_y_continuous(limits = c(0,60000), breaks = seq(0, 60000, 10000)) +
+  theme_minimal() +
+  labs(title = "Income Growth by gender and race",
+       x = "Year",
+       y = "Income",
+       caption = "Source: IPUMS") +
+  theme(panel.grid.minor = element_blank(), text = element_text(size=15), panel.spacing = unit(2, "lines"))
+
+# Answer to our main survey question:
+percentage = 100 * dat[YEAR==2014 & gender == "Woman" & race == "black", inc] / dat[YEAR==2014 & gender == "Man" & race == "black", inc]
+```
