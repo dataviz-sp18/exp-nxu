@@ -26,7 +26,7 @@ We want to examine and test the principles of visualization and run task regardi
 
 > $H_2$: A separated line graph by categories will take readers less time to make decision in this occasion. 
 
-## Data and Methods
+## Experiment Design
 To test this hypothesis, we designed an experiment consisting of one task: estimating the ratio of two data points from a plot. The participants have to read the values of 2 data points (for 1 year) from data, and estimate the percentage of the lower one is to the higher one. To compare the effect of two line graphs has on the participants' ability to accurately estimate and participants' response time, the experiment randomly presents data using one type of line plots.
 
 We first offer a screening question to subjects to avoid unreliable answers. Each subject needs to answer a question, "which group has the highest income value across the years?", to the graph below. The answer should be "Black, Man". If the subject fails this test, the survey will end.
@@ -39,12 +39,99 @@ Once the participant passed the screening test, they entered into our random exp
 
 ![plot2](image/separatedline.png)
 
-In total, we received responses.
+## Data and Descriptive Analysis
+```{r data, echo=FALSE}
+survey <- read.csv("surveydata_r.csv")
+tot_response <- nrow(dplyr::filter(survey, !grepl("Preview", Status) & !grepl("Spam", Status)))
+unfinished_res <- nrow(dplyr::filter(survey, grepl("FALSE", Finished)))
+failed_res <- nrow(dplyr::filter(survey, !grepl("Black, Man", Q2)))
+response <- dplyr::filter(survey, !grepl("Preview", Status) & !grepl("Spam", Status) & grepl("TRUE", Finished) & grepl("Black, Man", Q2) & !grepl("Not Black, Man", Q2))
+linesgroupsize <- nrow(dplyr::filter(response, is.na(Q4_1)==FALSE))
+smlsgroupsize <- nrow(dplyr::filter(response, is.na(Q6_1)==FALSE))
+percentage <- 57.4563863359794 #true answer to our question, shown in Appendix
+```
+
+In total, we received `r tot_response` responses from Amazon Turk in about 72 hours. Among these responses, `r unfinished_res` responses are not finished before we close the survey, and `r failed_res` responses failed our screening test. Here we will do our descriptive analyses on our finished responses that passed our screening test, which include `r nrow(response)` observations. Among these observations, `r linesgroupsize` are randomly assigned to answer the question for lines graph, and `r smlsgroupsize` are assigned to small multiple lines group.
+
+We report the survey answers from these two groups in "Fig: Density of Survey Answers". One can tell that in both groups, most people have an answer value close to the true value. However, the "small multiple lines" group seems to have higher accuracy by this preliminary result, which shows our 1st hypothesis is right.
+
+```{r descriptive analysis 1}
+response %>% 
+  select(Duration..in.seconds., ResponseId, Q4_1, Q6_1) %>%
+  mutate("line graph" = Q4_1, "small multiple lines" = Q6_1, timespent = Duration..in.seconds.) %>%
+  gather(., key = Graph_Type, value = answer, c("line graph","small multiple lines"), factor_key = TRUE) %>%
+  filter(., is.na(answer) == F) %>%
+  {.} -> response_long
+
+linesgroup <- filter(response_long, Graph_Type=="line graph")
+smlsgroup <- filter(response_long, Graph_Type=="small multiple lines")
 
 
-## Results
+response_long %>%
+  ggplot(., aes(x=answer, color=Graph_Type)) +
+    geom_line(stat="density") +
+    geom_vline(xintercept = percentage) +
+    scale_x_continuous(breaks = sort(c(seq(0, 100, length.out = 5), round(percentage,1)))) +
+    theme_minimal() +
+    labs(title = "Density of Survey Answers",
+         subtitle = paste0("True Value: ", as.character(percentage))) +
+    theme(panel.grid.minor = element_blank())
+```
+
+
+```{r descriptive analysis 2}
+response_long %>%
+  ggplot(., aes(x= timespent, color=Graph_Type)) +
+    geom_line(stat="density") +
+    theme_minimal() +
+    labs(title = "Density of Survey Answers",
+         subtitle = paste0("True Value: ", as.character(percentage))) +
+    theme(panel.grid.minor = element_blank())
+```
+## Analysis and Results
 
 
 ## Conclusion
 
 
+## Appendix
+```{r sourcedata, include=FALSE}
+# We got our source data for graphs from IPUMS.
+data = fread("/Users/apple/Dropbox/18spring/dataviz/usa_00002.csv", 
+             na.strings=c("0000000", "0000001", "9999999"))
+dat = data[, .(avginc = mean(INCTOT, na.rm=TRUE)), by=.(YEAR, SEX, RACE)]
+
+rm(data)
+
+dat = dat[, gender := ifelse(SEX==1, "Man", "Woman")]
+dat = dat[, race := ifelse(RACE==1, "black", "not black")]
+dat = dat[YEAR!=1970, .(inc = mean(avginc, na.rm=TRUE)), by=.(YEAR, gender, race)]
+
+ggplot(data=as.data.frame(dat), aes(x=YEAR, y=inc)) +
+  geom_point() + 
+  geom_line(aes(color = race, linetype=gender)) +
+  scale_x_continuous(breaks = seq(2007, 2016, 1)) +
+  scale_y_continuous(limits = c(0,60000), breaks = seq(0, 60000, 10000)) +
+  theme_minimal() +
+  labs(title = "Income Growth by gender and race",
+       x = "Year",
+       y = "Income",
+       caption = "Source: IPUMS") +
+  theme(panel.grid.minor = element_blank(), text = element_text(size=18))
+
+ggplot(data=as.data.frame(dat), aes(x=YEAR, y=inc)) +
+  geom_point() + 
+  geom_line(aes(color = race, linetype=gender)) +
+  facet_wrap(~ race) +
+  scale_x_continuous(breaks = seq(2007, 2016, 1)) +
+  scale_y_continuous(limits = c(0,60000), breaks = seq(0, 60000, 10000)) +
+  theme_minimal() +
+  labs(title = "Income Growth by gender and race",
+       x = "Year",
+       y = "Income",
+       caption = "Source: IPUMS") +
+  theme(panel.grid.minor = element_blank(), text = element_text(size=15), panel.spacing = unit(2, "lines"))
+
+# Answer to our main survey question:
+percentage = 100 * dat[YEAR==2014 & gender == "Woman" & race == "black", inc] / dat[YEAR==2014 & gender == "Man" & race == "black", inc]
+```
