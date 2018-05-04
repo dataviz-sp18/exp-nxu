@@ -46,17 +46,48 @@ tot_response <- nrow(dplyr::filter(survey, !grepl("Preview", Status) & !grepl("S
 unfinished_res <- nrow(dplyr::filter(survey, grepl("FALSE", Finished)))
 failed_res <- nrow(dplyr::filter(survey, !grepl("Black, Man", Q2)))
 response <- dplyr::filter(survey, !grepl("Preview", Status) & !grepl("Spam", Status) & grepl("TRUE", Finished) & grepl("Black, Man", Q2) & !grepl("Not Black, Man", Q2))
-percentage <- 57.4563863359794 # answer to our question, shown in Appendix
+linesgroupsize <- nrow(dplyr::filter(response, is.na(Q4_1)==FALSE))
+smlsgroupsize <- nrow(dplyr::filter(response, is.na(Q6_1)==FALSE))
+percentage <- 57.4563863359794 #true answer to our question, shown in Appendix
 ```
 
-In total, we received `r tot_response` responses from Amazon Turk in about 72 hours. Among these responses, `r unfinished_res` responses are not finished before we close the survey, and `r failed_res` responses failed our screening test. Here we will do our descriptive analyses on our finished responses that passed our screening test, which include `r nrow(response)` observations.
+In total, we received `r tot_response` responses from Amazon Turk in about 72 hours. Among these responses, `r unfinished_res` responses are not finished before we close the survey, and `r failed_res` responses failed our screening test. Here we will do our descriptive analyses on our finished responses that passed our screening test, which include `r nrow(response)` observations. Among these observations, `r linesgroupsize` are randomly assigned to answer the question for lines graph, and `r smlsgroupsize` are assigned to small multiple lines group.
 
-```{r descriptive analysis}
-ggplot(response) +
-  geom_density(aes(x = Q4_1)) +
-  geom_density(aes(x = Q6_1))
+We report the survey answers from these two groups in "Fig: Density of Survey Answers". One can tell that in both groups, most people have an answer value close to the true value. However, the "small multiple lines" group seems to have higher accuracy by this preliminary result, which shows our 1st hypothesis is right.
+
+```{r descriptive analysis 1}
+response %>% 
+  select(Duration..in.seconds., ResponseId, Q4_1, Q6_1) %>%
+  mutate("line graph" = Q4_1, "small multiple lines" = Q6_1, timespent = Duration..in.seconds.) %>%
+  gather(., key = Graph_Type, value = answer, c("line graph","small multiple lines"), factor_key = TRUE) %>%
+  filter(., is.na(answer) == F) %>%
+  {.} -> response_long
+
+linesgroup <- filter(response_long, Graph_Type=="line graph")
+smlsgroup <- filter(response_long, Graph_Type=="small multiple lines")
+
+
+response_long %>%
+  ggplot(., aes(x=answer, color=Graph_Type)) +
+    geom_line(stat="density") +
+    geom_vline(xintercept = percentage) +
+    scale_x_continuous(breaks = sort(c(seq(0, 100, length.out = 5), round(percentage,1)))) +
+    theme_minimal() +
+    labs(title = "Density of Survey Answers",
+         subtitle = paste0("True Value: ", as.character(percentage))) +
+    theme(panel.grid.minor = element_blank())
 ```
 
+
+```{r descriptive analysis 2}
+response_long %>%
+  ggplot(., aes(x= timespent, color=Graph_Type)) +
+    geom_line(stat="density") +
+    theme_minimal() +
+    labs(title = "Density of Survey Answers",
+         subtitle = paste0("True Value: ", as.character(percentage))) +
+    theme(panel.grid.minor = element_blank())
+```
 ## Analysis and Results
 
 
