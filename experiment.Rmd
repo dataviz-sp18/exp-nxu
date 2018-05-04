@@ -51,9 +51,9 @@ smlsgroupsize <- nrow(dplyr::filter(response, is.na(Q6_1)==FALSE))
 percentage <- 57.4563863359794 #true answer to our question, shown in Appendix
 ```
 
-In total, we received `r tot_response` responses from Amazon Turk in about 72 hours. Among these responses, `r unfinished_res` responses are not finished before we close the survey, and `r failed_res` responses failed our screening test. Here we will do our descriptive analyses on our finished responses that passed our screening test, which include `r nrow(response)` observations. Among these observations, `r linesgroupsize` are randomly assigned to answer the question for lines graph, and `r smlsgroupsize` are assigned to small multiple lines group.
+In total, we received `r tot_response` responses from Amazon Turk in about 72 hours. Among these responses, `r unfinished_res` responses are not finished before we close the survey, and 37 responses failed our screening test. Here we will do our descriptive analyses on our finished responses that passed our screening test, which include `r nrow(response)` observations. Among these observations, `r linesgroupsize` are randomly assigned to answer the question for lines graph, and `r smlsgroupsize` are assigned to small multiple lines group.
 
-We report the survey answers from these two groups in "Fig: Density of Survey Answers". One can tell that in both groups, most people have an answer value close to the true value. However, the "small multiple lines" group seems to have higher chance to reach the true value according to this preliminary result, which could mean our 1st hypothesis is right.
+We reported the survey answers from these two groups in "Fig: Density of Survey Answers". One can tell that in both groups, most people have an answer value close to the true value. However, the "small multiple lines" group seems to have higher chance to reach the true value according to this preliminary result, which could mean our 1st hypothesis($H_{1}$) is right.
 
 ```{r descriptive analysis 1}
 response %>% 
@@ -78,7 +78,7 @@ response_long %>%
     theme(panel.grid.minor = element_blank())
 ```
 
-Then let's take a look at the answering speed of participants. It seems that "line graph" has advantage in this scenario, which has more subjects completing the question in less time than average. And in "small multiple lines", there are more subjects taking more than 250 seconds to finish the survey. This preliminary result shows that our 2nd hypothesis might be wrong. In next section, we will use methods that are more reliable to test these two hypotheses.
+Then let's take a look at the answering speed of participants. It seems that "line graph" has advantage in this scenario, which has more subjects completing the question in less time than average. And in "small multiple lines", there are more subjects taking more than 250 seconds to finish the survey. This preliminary result shows that our 2nd hypothesis($H_{2}$) might be wrong. In next section, we will use methods that are more reliable to test these two hypotheses.
 
 ```{r descriptive analysis 2}
 avg_timespent <- mean(response_long$timespent)
@@ -96,7 +96,7 @@ response_long %>%
 ## Analysis and Results
 ### Accuracy
 
-Following the accuracy method from Cleveland and McGill(1984), we decided to measure how the respondent estimate incorrectly using error accuracy.
+Following the accuracy method from Cleveland and McGill(1984), we decided to measure how the respondent estimates incorrectly using log error accuracy.
 
 The measure that we used is defined as:
   Log error accruacy = $log_{2}(|judged \space estimate - true \space estimate\space value| + \frac{1}{8}$
@@ -119,7 +119,7 @@ accuracy_plot <- response_long %>%
   ggplot(., aes(x=accr, color=Graph_Type)) +
   geom_line(stat = 'density')+
   labs(color = "Graph Type",
-       x = "Accuracy",
+       x = "Log Error Accuracy",
        title = "")+
   geom_vline(xintercept=log2(1/8))+
   scale_x_continuous(breaks = sort(c(seq(-4, 10), round(-3,1))))+
@@ -136,13 +136,13 @@ row.names(acctable1) <- c('Mean Log error Accuracy')
 acctable1
 ```
 
-The mean of log error accuracy of two questions are shown in above table, `r acctable1`. From the table we can observe  that the mean of log error accuracy with "small multiple lines"" is higher than that with "line graph" and the difference is 0.0249. From this result, we can conclude that in "small multiple lines", people tend to estimate more accurate than "line graph". 
+The mean of log error accuracy of two questions are shown in above table. From the table we can observe that the mean of log error accuracy with "small multiple lines"" is higher than that with "line graph" and the difference is 0.0249. From this result, we can conclude that in "small multiple lines", people tend to estimate more accurate than "line graph". 
 
 ```{r analysis 2}
-accuracy_plot
+accuracy_plot 
 ```
 
-Now take a look at the density plot of accuracy by two graph types. The vertical line in the left side means the case that a estimate is identical with the true value and it is the same value as $log_{2}\frac{1}{8} = -3$. Since the log error accuracy takes the absolute value in the formula, all the results fell into the right side of the plot. When we compared these two graphs, overall shapes are similar to each other. But "line graph"" has a peak point on the right side compared with "small multiple lines", and has larger log error accuracy than "small multiple lines". This indicates that the resondents who assigned to "small multiple lines" tend to estimate more accurate. This result consistent with our hypothesis $H_{1}$.
+Now take a look at the density plot of log error accuracy by two graph types. The vertical line in the left side means the case that a estimate is identical with the true value and it is the same value as $log_{2}\frac{1}{8} = -3$. Since the log error accuracy takes the absolute value in the formula, all the results fell into the right side of accurate estimate on the plot. When we compared these two graphs, shapes are similar to each other. But a peak point of "line graph" located on the right side when comparing the graph of "small multiple lines", and "line graph" has larger log error accuracy than "small multiple lines". This indicates that the resondents who assigned to "small multiple lines" tend to estimate more accurate. This result consistent with our hypothesis $H_{1}$.
 
 ### Speed
 
@@ -168,7 +168,7 @@ row.names(durable) <- c('Mean Duration','Mean Duration within estimate [47.5,67.
 durable
 ```
 
-To test our hypotesis $H_{2}$, we now focus on the duration time to estimate the value with each graph. From the first row of above table, a mean of duration time with "small multiple lines" is a lot larger than a mean of duration time with "line graph" and the difference is about 25 seconds. This indicates that overall, "line graph" took less time to make decision than "small multiple graph".  However, as we observed in the descriptive analysis, there are outliers in duration time, we need to consider outliers to remedy. We decided to focus only on an interval around true estimate value `r percentage`. We arbitrary selected the interval as $\pm 10$ from the true estmate value, $[47.5 , \space 67.5]$. Then we calculated the mean of duration time of each graph type and the result is the second row in the table. These duration times also indicates that the time duration with "small multiple lines" took more time thatn the time duration with "line graph" and the difference is about 4 seoncds. This result contradicts with our hypothesis $H_{2}$. 
+To test our hypotesis $H_{2}$, we now focus on the duration time to estimate the value with each graph. From the first row of above table, a mean of duration time with "small multiple lines" is a lot larger than a mean of duration time with "line graph" and the difference is about 25 seconds. This indicates that overall, "line graph" took less time to make decision than "small multiple graph".  However, as we observed in the descriptive analysis, there are outliers in duration time, we need to consider outliers to remedy. We decided to focus only on an interval around true estimate value `r percentage`. We arbitrary selected the interval as $\pm 10$ from the true estmate value, $[47.5 , \space 67.5]$. Then we calculated the mean of duration time of each graph type and the result is the second row in the table. These duration times also indicates that the time duration with "small multiple lines" took more time than the time duration with "line graph" and the difference is about 4 seoncds. This result contradicts with our hypothesis $H_{2}$. 
 
 ### Accuracy & Speed
 ```{r analysis 3}
@@ -193,7 +193,7 @@ row.names(acctable) <- c('Mean Log error Accuracy',
 acctable
 ```
 
-Additionally, we further conducted analysis which considering accuracy and speed at the same time. We made an same criteria as we applied in previous section "Speed" in the second row and calucalted the log error accuracy in the interval. The log error accuracy with "line graph" is larger than the log error accuracy with "small muliple lines" within the interval estimate [47.5, 67.5]. This indicates that even within the groups that made a close estimate with the true estimate value, the mean of log error accuracy with "small multiple lines" is smaller than that with "line graph". Thus, the respondents who assigned with "small multiple lines" were able to make more accurate estimate than the respondents who assigned with "line graph". We also made another criteria that the comparison of mean of log error accuracy with the reponsdents who made their decision relatively fast, under 25 seconds. The result is in the third row in the above table, and this also shows that the mean log error accuracy with "small multiple lines" is smaller than that with "line graph". Thus we can conclude that the respondents, who assigned with "small multiple lines" and decided their decision under 25 seconds, were able to make more accurate estimate than the respondents who assigned with "line graph" and decided their decision under 25 seconds. 
+Additionally, we further conducted analysis which considering accuracy and speed at the same time. We made an same criteria as we applied in previous section "Speed" in the second row and calucalted the log error accuracy whithin the interval. The log error accuracy with "line graph" is larger than the log error accuracy with "small muliple lines" within the interval estimate [47.5, 67.5]. This indicates that even within the groups that made a close estimate with the true estimate value, the mean of log error accuracy with "small multiple lines" is smaller than that with "line graph". Thus, the respondents who assigned with "small multiple lines" were able to make more accurate estimate than the respondents who assigned with "line graph". We also made another criteria that the comparison of mean of log error accuracy with the reponsdents who made their decision relatively fast, under 25 seconds. The result is in the third row in the above table, and this also shows that the mean log error accuracy with "small multiple lines" is smaller than that with "line graph". Thus we can conclude that the respondents, who assigned with "small multiple lines" and decided their decision under 25 seconds, were able to make more accurate estimate than the respondents who assigned with "line graph" and decided their decision under 25 seconds. 
 
 ## Conclusion
 For this experiment, we hypothesized that with multiple time series, all series in one simple line plot would increase the difficulty for subjects to extract the information regarding local comparison, more specifically, within group differences for the data structured with groups. By difficulty, we mainly focused on: (1) the difficulty to extract accurate information; and (2) difficulty to extract information in a short time. Hence our experiment aims to look at the accuracy and answering speed for two randomized groups, exposing to "line graph" and "small multiple lines". The analysis and results seem to consistent wtih our first hypothesis $H_{1}$, a separated line graph enables more accurate estimate for within group differences than a simple line graph. However, the analysis and results seem to contradict with our second hypothesis $H_{2}$,a separated line graph by categories will take readers less time to make decision in this occasion. 

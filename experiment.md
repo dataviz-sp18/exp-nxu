@@ -65,18 +65,18 @@ case our question is vague in some ways.
 
 In total, we received 248 responses from Amazon Turk in about 72 hours.
 Among these responses, 20 responses are not finished before we close the
-survey, and 30 responses failed our screening test. Here we will do our
+survey, and 37 responses failed our screening test. Here we will do our
 descriptive analyses on our finished responses that passed our screening
 test, which include 191 observations. Among these observations, 88 are
 randomly assigned to answer the question for lines graph, and 103 are
 assigned to small multiple lines group.
 
-We report the survey answers from these two groups in “Fig: Density of
+We reported the survey answers from these two groups in “Fig: Density of
 Survey Answers”. One can tell that in both groups, most people have an
 answer value close to the true value. However, the “small multiple
 lines” group seems to have higher chance to reach the true value
 according to this preliminary result, which could mean our 1st
-hypothesis is
+hypothesis(\(H_{1}\)) is
 right.
 
 ![](experiment_files/figure-gfm/descriptive%20analysis%201-1.png)<!-- -->
@@ -86,8 +86,8 @@ that “line graph” has advantage in this scenario, which has more
 subjects completing the question in less time than average. And in
 “small multiple lines”, there are more subjects taking more than 250
 seconds to finish the survey. This preliminary result shows that our 2nd
-hypothesis might be wrong. In next section, we will use methods that are
-more reliable to test these two
+hypothesis(\(H_{2}\)) might be wrong. In next section, we will use
+methods that are more reliable to test these two
 hypotheses.
 
 ![](experiment_files/figure-gfm/descriptive%20analysis%202-1.png)<!-- -->
@@ -97,8 +97,8 @@ hypotheses.
 ### Accuracy
 
 Following the accuracy method from Cleveland and McGill(1984), we
-decided to measure how the respondent estimate incorrectly using error
-accuracy.
+decided to measure how the respondent estimates incorrectly using log
+error accuracy.
 
 The measure that we used is defined as: Log error accruacy =
 \(log_{2}(|judged \space estimate - true \space estimate\space value| + \frac{1}{8}\)
@@ -108,26 +108,26 @@ and large log error accuracy means the estimate is far from true value.
     ## Mean Log error Accuracy   3.456123             3.438597
 
 The mean of log error accuracy of two questions are shown in above
-table, 3.4561227, 3.4385972. From the table we can observe that the mean
-of log error accuracy with “small multiple lines”" is higher than that
-with “line graph” and the difference is 0.0249. From this result, we can
-conclude that in “small multiple lines”, people tend to estimate more
-accurate than “line graph”.
+table. From the table we can observe that the mean of log error accuracy
+with “small multiple lines”" is higher than that with “line graph” and
+the difference is 0.0249. From this result, we can conclude that in
+“small multiple lines”, people tend to estimate more accurate than
+“line graph”.
 
 ![](experiment_files/figure-gfm/analysis%202-1.png)<!-- -->
 
-Now take a look at the density plot of accuracy by two graph types. The
-vertical line in the left side means the case that a estimate is
-identical with the true value and it is the same value as
+Now take a look at the density plot of log error accuracy by two graph
+types. The vertical line in the left side means the case that a estimate
+is identical with the true value and it is the same value as
 \(log_{2}\frac{1}{8} = -3\). Since the log error accuracy takes the
 absolute value in the formula, all the results fell into the right side
-of the plot. When we compared these two graphs, overall shapes are
-similar to each other. But “line graph”" has a peak point on the right
-side compared with “small multiple lines”, and has larger log error
-accuracy than “small multiple lines”. This indicates that the resondents
-who assigned to “small multiple lines” tend to estimate more accurate.
-This result consistent with our hypothesis
-    \(H_{1}\).
+of accurate estimate on the plot. When we compared these two graphs,
+overall shapes are similar to each other. But “line graph”" has a peak
+point on the right side compared with “small multiple lines”, and has
+larger log error accuracy than “small multiple lines”. This indicates
+that the resondents who assigned to “small multiple lines” tend to
+estimate more accurate. This result consistent with our hypothesis
+\(H_{1}\).
 
 ### Speed
 
