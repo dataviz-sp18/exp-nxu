@@ -26,7 +26,7 @@ We want to examine and test the principles of visualization and run task regardi
 
 > $H_2$: A separated line graph by categories will take readers less time to make decision in this occasion. 
 
-## Data and Methods
+## Experiment Design
 To test this hypothesis, we designed an experiment consisting of one task: estimating the ratio of two data points from a plot. The participants have to read the values of 2 data points (for 1 year) from data, and estimate the percentage of the lower one is to the higher one. To compare the effect of two line graphs has on the participants' ability to accurately estimate and participants' response time, the experiment randomly presents data using one type of line plots.
 
 We first offer a screening question to subjects to avoid unreliable answers. Each subject needs to answer a question, "which group has the highest income value across the years?", to the graph below. The answer should be "Black, Man". If the subject fails this test, the survey will end.
@@ -39,10 +39,19 @@ Once the participant passed the screening test, they entered into our random exp
 
 ![plot2](image/separatedline.png)
 
-In total, we received responses.
+## Data and Descriptive Analysis
+```{r data, echo=FALSE}
+survey <- read.csv("surveydata_r.csv")
+tot_response <- nrow(dplyr::filter(survey, !grepl("Preview", Status) & !grepl("Spam", Status)))
+unfinished_res <- nrow(dplyr::filter(survey, grepl("FALSE", Finished)))
+failed_res <- nrow(dplyr::filter(survey, !grepl("Black, Man", Q2)))
+response <- dplyr::filter(survey, !grepl("Preview", Status) & !grepl("Spam", Status) & grepl("TRUE", Finished) & grepl("Black, Man", Q2) & !grepl("Not Black, Man", Q2))
+```
+
+In total, we received `r tot_response` responses from Amazon Turk in about 72 hours. Among these responses, `r unfinished_res` responses are not finished before we close the survey, and `r failed_res` responses failed our screening test. Here we will do our descriptive analyses on our finished responses that passed our screening test, which include `r nrow(response)` observations.
 
 
-## Results
+## Analysis and Results
 
 
 ## Conclusion
